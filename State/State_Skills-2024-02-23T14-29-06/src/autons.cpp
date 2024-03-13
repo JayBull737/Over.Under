@@ -11,21 +11,13 @@ void default_constants() {
   chassis.set_turn_exit_conditions(5, 300, 3000);
   chassis.set_swing_exit_conditions(3, 300, 3000);
   Itake.setVelocity(100, percent);
-  Pun.setVelocity(57, percent);
+  Pun.setVelocity(49, percent);
   Pun.setMaxTorque(100, percent);
-}
-
-void adj() {
-  Drivetrain.drive(fwd, .45, velocityUnits());
-  Drivetrain.turnToRotation(118, degrees);
-  wait(5, seconds);
 }
 
 void stopall() {
   RightDriveSmart.stop();
   LeftDriveSmart.stop();
-  RightDriveSmart.setVelocity(100, percentUnits());
-  LeftDriveSmart.setVelocity(100, percentUnits());
 }
 
 void bothwings(const float &value) {
@@ -34,6 +26,10 @@ void bothwings(const float &value) {
 }
 
 void usertime() {
+  float throttle = deadband(controller(primary).Axis3.value(), 5);
+  float turn = deadband(controller(primary).Axis1.value(), 5);
+  LeftDriveSmart.spin(fwd, to_volt(throttle-turn), volt);
+  RightDriveSmart.spin(fwd, to_volt(throttle+turn), volt);
     if (Controller1.ButtonR2.pressing()) {
       Pun.spin(reverse);
     } else {
@@ -47,11 +43,10 @@ void usertime() {
       wingL.set(false);
     }
     if (Controller1.ButtonA.pressing()) {
-      wingR.set(true);
-    } else {} ;
-    
-    
-    
+      Park.set(true);
+     } else if (Controller1.ButtonY.pressing()) {
+      Park.set(false);
+    }
 
 }
 
@@ -87,3 +82,56 @@ void prints() {
     Brain.Screen.drawCircle(240, 120, 55, black);
     Brain.Screen.drawCircle(240, 120, 20, green);
   }
+
+void WinPoint() {
+  chassis.drive_distance(-200);
+  Park.set(1);
+  wait(0.2,seconds);
+  chassis.drive_distance(500);
+  chassis.turn_to_angle(-15);
+  Itake.spin(reverse);
+  Park.set(0);
+  chassis.drive_distance(-300);
+  chassis.turn_to_angle(10);
+  chassis.drive_distance(500);
+  chassis.turn_to_angle(-30);
+  chassis.drive_distance(200);
+  chassis.turn_to_angle(-45);
+  chassis.drive_distance(385);
+  wait(0.5,seconds);
+  Itake.stop();
+}
+
+void Tourney() {
+  Itake.spin(fwd);
+  // drive to middle
+  chassis.drive_distance(1540);
+  chassis.drive_distance(-180);
+  // push triball over middle
+  chassis.turn_to_angle(75);
+  wingL.set(1);
+  chassis.drive_distance(620);
+  wingL.set(1);
+  chassis.turn_to_angle(20);
+  wingL.set(0);
+  // drive to matchload bar
+  chassis.drive_distance(-1570);
+  chassis.turn_to_angle(119);
+  // get triball out of corner
+  chassis.drive_distance(-300);
+  Park.set(1);
+  wait(0.2,seconds);
+  chassis.drive_distance(450);
+  chassis.turn_to_angle(65);
+  Park.set(0);
+  chassis.drive_distance(-200);
+  chassis.turn_to_angle(110);
+  chassis.drive_distance(500);
+  chassis.turn_to_angle(80);
+  chassis.drive_distance(200);
+  Itake.spin(reverse);
+  chassis.turn_to_angle(66);
+  chassis.drive_distance(510);
+  wait(0.5,seconds);
+  Itake.stop();
+}
